@@ -247,22 +247,6 @@ func (s *state) squashTest() {
 	}
 }
 
-// var (
-// 	sneamia               = false
-// 	deathHeight           float64
-// 	curFrame              int
-// 	updateCounter         int
-// 	updateReset           = 0 // ????
-// 	me                    *player
-// 	guys                  []*player
-// 	startMS, timeoutMS    float64
-// 	forceMyPositionUpdate bool
-// 	course                [][]*block
-// 	//bumped                []*bloc
-// 	placedMines []*mine
-// 	lasers      []*laser
-// )
-
 type laser struct {
 	x, y    float64
 	vel     float64
@@ -745,22 +729,6 @@ func (p *player) onBump() {
 	}
 }
 
-// function bumpAnimation(m)
-// {
-//    m.bumpVel = -20;
-//    m.onEnterFrame = function()
-//    {
-//       this.bumpVel = this.bumpVel * 0.5;
-//       this._y = this._y + this.bumpVel;
-//       this._y = this._y + (this.y - this._y) * 0.25;
-//       if(Math.abs(this.y - this._y) < 0.25)
-//       {
-//          this._y = this.y;
-//          delete this.onEnterFrame;
-//       }
-//    };
-// }
-
 func bumpAnimation(b *block) {
 	const bumpVel = -20
 
@@ -811,32 +779,6 @@ func (p *player) controlChange(variable string, val bool) {
 		}
 	}
 }
-
-// func camFollow(m *mPlayer) {
-// 	cam.t = m
-// 	cam.onEnterFrame = func() {
-// 		var _loc8 = 0 - cam.t._x + 550/2
-// 		var _loc7 = 0 - cam.t._y + 400/2 + 25
-// 		var _loc10 = (_loc8) - cam._x
-// 		var _loc9 = (_loc7) - cam._y
-// 		var _loc6 = _loc10 * camFollowSpeed
-// 		var _loc5 = _loc9 * camFollowSpeed
-// 		cam._x = cam._x + _loc6
-// 		cam._y = cam._y + _loc5
-// 		// var _loc3;
-// 		//   for(_loc4 < bgArray.length){
-// 		//      _loc3 = bgArray[_loc4];
-// 		//      _loc3._x = _loc3._x - _loc6 * _loc3.ratio;
-// 		//      _loc3._y = _loc3._y - _loc5 * _loc3.ratio;
-// 		//      _loc4++;
-// 		//   }
-// 	}
-// }
-
-// func centerCam(m *mPlayer) {
-// 	cam._x = 0 - m._x + 550/2
-// 	cam._y = 0 - m._y + 550/2 // pr1 bug: it uses Stage.width instead of Stage.height here
-// }
 
 type course struct {
 	name        string
