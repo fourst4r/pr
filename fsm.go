@@ -878,7 +878,7 @@ func (b *block) onRightHit(p *player) {
 	switch b.t {
 	case blockMine:
 		p.xVel = (p.x - b.x) * 5
-		p.yVel = 0 - (p.y - b.y)
+		p.yVel = /*0 -*/ (p.y - b.y)
 		if p == p.course.me && !p.sneamia {
 			p.controlChange("bumped", true)
 			p.bumpedTimer = 97
