@@ -221,15 +221,19 @@ func (s *state) squashTest() {
 	var _loc7 float64
 	var _loc5 float64
 	for _, guyA := range s.course.guys {
-		if guyA.yVel > 0.5 {
+		if guyA.yVel < 0.5 {
 			for _, guyB := range s.course.guys {
+				if guyA == guyB {
+					continue
+				}
 				_loc7 = guyA.x - guyB.x
 				_loc5 = guyA.y - guyB.y
-				if math.Abs(_loc7) < 25 && _loc5 < (0-pheight)/2 && _loc5 > 0-pheight+10 && guyA.recoveryTimer <= 0 && guyB.recoveryTimer <= 0 {
+				if math.Abs(_loc7) < 25 && _loc5 < (0-pheight)/2 && _loc5 > 0-pheight-10 && guyA.recoveryTimer <= 0 && guyB.recoveryTimer <= 0 {
 					//_root.startGameSound(guy.m,75,"headBounce");
-					guyA.yVel = -12
+					guyB.yVel = 12
 					if guyB == s.course.me {
-						guyB.controlChange("squashed", true)
+						guyA.controlChange("squashed", true)
+						guyA.squashTimer = 80
 					}
 				}
 			}
@@ -387,6 +391,8 @@ type player struct {
 	course       *course
 	sneamia      bool
 	sendToSocket func(string)
+	squashTimer  int
+	bumpedTimer  int
 }
 
 func (p *player) move() {
@@ -454,6 +460,19 @@ func (p *player) move() {
 			//_root.startGameSound(c.m,75,"slowDown");
 		}
 	}
+	if p.bumpedTimer > 0 {
+		p.bumpedTimer--
+		if p.bumpedTimer == 1 {
+			p.bumped = false
+		}
+	}
+	if p.squashTimer > 0 {
+		p.squashTimer--
+		if p.squashTimer == 1 {
+			p.squashed = false
+			p.yVel = 7
+		}
+	}
 	var _loc5 = (float64(p.traction) + 20) / 1000
 	if p.stand != nil {
 		_loc5 *= p.stand.traction
@@ -482,7 +501,6 @@ func (p *player) move() {
 		// }
 	} else {
 		//_loc3._alpha = 100
-		p.bumped = false
 	}
 	if p.finished != false || p.forfeit != false {
 		p.mode = modeFinish
@@ -713,9 +731,10 @@ func (p *player) useItem() {
 }
 
 func (p *player) onBump() {
-	p.yVel = -7
+	p.yVel = 7
 	if p == p.course.me {
 		p.controlChange("bumped", true)
+		p.bumpedTimer = 97
 	}
 }
 
@@ -806,6 +825,7 @@ func (b *block) onStand(p *player) {
 		p.yVel = 0 - (p.y - b.y)
 		if p == p.course.me && !p.sneamia {
 			p.controlChange("bumped", true)
+			p.bumpedTimer = 97
 		}
 		p.course.blocks[bx][by] = nil
 	}
@@ -831,6 +851,7 @@ func (b *block) onBump(p *player) {
 		p.yVel = 0 - (p.y - b.y)
 		if p == p.course.me && !p.sneamia {
 			p.controlChange("bumped", true)
+			p.bumpedTimer = 97
 		}
 		p.course.blocks[bx][by] = nil
 	}
@@ -845,6 +866,7 @@ func (b *block) onLeftHit(p *player) {
 		p.yVel = 0 - (p.y - b.y)
 		if p == p.course.me && !p.sneamia {
 			p.controlChange("bumped", true)
+			p.bumpedTimer = 97
 		}
 		p.course.blocks[bx][by] = nil
 	}
@@ -859,6 +881,7 @@ func (b *block) onRightHit(p *player) {
 		p.yVel = 0 - (p.y - b.y)
 		if p == p.course.me && !p.sneamia {
 			p.controlChange("bumped", true)
+			p.bumpedTimer = 97
 		}
 		p.course.blocks[bx][by] = nil
 	}
