@@ -8,6 +8,11 @@ import (
 	"time"
 )
 
+const (
+	segSize float64 = 30
+	gravity         = .49 // estimation
+)
+
 type inputs struct{ up, down, left, right, space bool }
 
 type state struct {
@@ -21,6 +26,10 @@ type state struct {
 	inputs                inputs
 }
 
+func (s *state) timeLeft() float64 {
+	return math.Round((s.timeoutMS - (getMS() - s.startMS)) / 1000)
+}
+
 func (s *state) nextFrame() {
 	s.curFrame++
 	if s.curFrame == 1 {
@@ -31,6 +40,8 @@ func (s *state) nextFrame() {
 		//drawMinimap(mapp);
 		//centerCam(me.m)
 		//camFollow(me.m)
+		s.startMS = getMS()
+		s.timeoutMS = 120000
 	} else if s.curFrame == 61 {
 		for _, guy := range s.course.guys {
 			guy.waiting = false
@@ -41,10 +52,10 @@ func (s *state) nextFrame() {
 	guys := s.course.guys
 	course := s.course
 
-	var timeLeft = math.Round((s.timeoutMS - (getMS() - s.startMS)) / 1000)
-	//fmt.Println("timeLeft:", timeLeft)
+	var timeLeft = s.timeLeft()
 	//menu_mc.timeLeftBox.text = formatSeconds(timeLeft,"seconds");
 	if timeLeft <= 0 && me.sendToSocket != nil {
+
 		me.sendToSocket("race_over`")
 	}
 	if !me.finished && !me.forfeit {
@@ -221,19 +232,22 @@ func (s *state) squashTest() {
 	var _loc7 float64
 	var _loc5 float64
 	for _, guyA := range s.course.guys {
-		if guyA.yVel < 0.5 {
+		if guyA.yVel < -0.5 {
 			for _, guyB := range s.course.guys {
 				if guyA == guyB {
 					continue
 				}
 				_loc7 = guyA.x - guyB.x
 				_loc5 = guyA.y - guyB.y
-				if math.Abs(_loc7) < 25 && _loc5 < (0-pheight)/2 && _loc5 > 0-pheight-10 && guyA.recoveryTimer <= 0 && guyB.recoveryTimer <= 0 {
-					//_root.startGameSound(guy.m,75,"headBounce");
-					guyB.yVel = 12
+				// fmt.Println("check1:", _loc5 < (0-pheight)/2)
+				// fmt.Println("check2:", _loc5 > 0-pheight+10)
+				if math.Abs(_loc7) < 25 && _loc5 < (pheight) && _loc5 > 0-pheight+10 && guyA.recoveryTimer <= 0 && guyB.recoveryTimer <= 0 {
+					//_root.startGameSound(guyA.m,75,"headBounce");
+					guyA.yVel = 12
 					if guyB == s.course.me {
-						guyA.controlChange("squashed", true)
-						guyA.squashTimer = 80
+						guyB.controlChange("squashed", true)
+						guyB.squashTimer = 80
+						guyB.recoveryTimer = guyB.squashTimer + 25
 					}
 				}
 			}

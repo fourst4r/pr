@@ -24,9 +24,7 @@ const (
 	lwidth  = 43.25
 	lheight = 21
 
-	segSize        float64 = 30
-	camFollowSpeed         = .5
-	gravity                = .5 // is this right????
+	camFollowSpeed = .5
 )
 
 var bcolors = []color.Color{
@@ -51,10 +49,6 @@ func hex2col(h uint) pixel.RGBA {
 	g := h & 0x00FF00 >> 8
 	b := h & 0x0000FF
 	return pixel.RGB((float64(r) / 0xFF), (float64(g) / 0xFF), (float64(b) / 0xFF))
-}
-
-func nextFrame(st *state, win *pixelgl.Window) {
-
 }
 
 func run() {
@@ -96,6 +90,9 @@ func run() {
 				space: win.Pressed(pixelgl.KeySpace),
 			}
 			st.nextFrame()
+			if st.curFrame == 1 {
+				st.course.guys = []*player{st.course.me}
+			}
 
 			me = st.course.me
 			var _loc8 = me.x - gwidth/2
@@ -158,14 +155,15 @@ func run() {
 
 			txt.Clear()
 			fmt.Fprintf(txt,
-				"pos=%f,%f\n"+
+				"tme=%d\n"+
+					"pos=%f,%f\n"+
 					"vel=%f,%f\n"+
 					"vtg=%f\n"+
 					"rec=%d\n"+
 					"sjv=%d\n"+
 					"wpn=%s %d %d\n"+
 					"mod=%s\n"+
-					"lsr=%v\n", me.x, me.y, me.xVel, me.yVel, me.xVelTarget, me.recoveryTimer, me.superJump, me.weapon, me.bullets, me.jetFuel, me.mode, st.course.lasers)
+					"lsr=%v\n", int(st.timeLeft()), me.x, me.y, me.xVel, me.yVel, me.xVelTarget, me.recoveryTimer, me.superJump, me.weapon, me.bullets, me.jetFuel, me.mode, st.course.lasers)
 			txt.Draw(win, pixel.IM)
 		}
 
