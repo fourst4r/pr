@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"image/color"
+	"math"
 	"math/rand"
 	"time"
 
@@ -51,6 +52,8 @@ func hex2col(h uint) pixel.RGBA {
 	return pixel.RGB((float64(r) / 0xFF), (float64(g) / 0xFF), (float64(b) / 0xFF))
 }
 
+const deg2rad = math.Pi / 180
+
 func run() {
 	rand.Seed(time.Now().Unix())
 	cfg := pixelgl.WindowConfig{
@@ -69,7 +72,8 @@ func run() {
 
 	st := &state{
 		course: &course{
-			name: "newbieland",
+			// name: "newbieland",
+			name: "robocity",
 		},
 	}
 
@@ -81,7 +85,7 @@ func run() {
 		}
 
 		var me *player
-		if !fbf || fbf && win.JustPressed(pixelgl.KeyS) || win.Repeated(pixelgl.KeyS) {
+		if !fbf || (fbf && (win.JustPressed(pixelgl.KeyS) || win.Repeated(pixelgl.KeyS))) {
 			st.inputs = inputs{
 				up:    win.Pressed(pixelgl.KeyUp),
 				down:  win.Pressed(pixelgl.KeyDown),
@@ -119,6 +123,26 @@ func run() {
 					imd.Color = bcolors[int(b.t)]
 					imd.Push(br.Min, br.Max)
 					imd.Rectangle(0)
+					isArrow := b.t == blockUp || b.t == blockLeft || b.t == blockRight
+					if isArrow {
+						imd.Color = colornames.Black
+						line1 := pixel.L(pixel.V(-5, 0), pixel.V(0, +10))  // /
+						line2 := pixel.L(pixel.V(0, -10), pixel.V(0, +10)) //  |
+						line3 := pixel.L(pixel.V(+5, 0), pixel.V(0, +10))  //   \
+						mat := pixel.IM.Moved(br.Center())
+						switch b.t {
+						case blockLeft:
+							mat = mat.Rotated(br.Center(), deg2rad*90)
+						case blockRight:
+							mat = mat.Rotated(br.Center(), deg2rad*-90)
+						}
+						imd.Push(mat.Project(line1.A), mat.Project(line1.B))
+						imd.Line(1)
+						imd.Push(mat.Project(line2.A), mat.Project(line2.B))
+						imd.Line(1)
+						imd.Push(mat.Project(line3.A), mat.Project(line3.B))
+						imd.Line(1)
+					}
 				}
 			}
 

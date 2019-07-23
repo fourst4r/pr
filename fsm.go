@@ -169,7 +169,7 @@ func (s *state) loadLevel() {
 	s.course.guys = make([]*player, 4)
 
 	parseT := func(t byte) blockType {
-		d, err := strconv.ParseInt(string(t), 0, 64)
+		d, err := strconv.ParseInt(string(t), 16, 64)
 		if err != nil {
 			panic(err)
 		}
@@ -831,7 +831,7 @@ func (b *block) onStand(p *player) {
 		p.xVel += 0.3
 	case blockUp:
 		p.safe = p.course.blocks[bx][by]
-		p.yVel = -10
+		p.yVel = +10
 	case blockBasic, blockMetal, blockItem, blockFinish, blockIce:
 		p.safe = p.course.blocks[bx][by]
 	case blockMine:
